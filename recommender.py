@@ -51,6 +51,11 @@ def clean_data(x):
 def create_soup(x):
     return ' '.join(x['keywords']) + ' ' + ' '.join(x['cast']) + ' ' + x['director'] + ' ' + ' '.join(x['genres'])
 
+def create_soup2(x):
+    return ' '.join(x['keywords'][0]) + ' '.join(x['cast'][0]) + ' '.join(x['director'][0])+ ' '.join(x['genres'][0])
+
+
+
 
 def weighted_rating(x, m, C):
     v = x['vote_count']
@@ -58,13 +63,14 @@ def weighted_rating(x, m, C):
     # Calculation based on the IMDB formula
     return (v/(v+m) * R) + (m/(m+v) * C)
 
-def get_recommendations(metadata, indices, title, cosine_sim, nb_movies_out):
+
+
+def get_recommendations_from_movie(metadata, indices, title, cosine_sim, nb_movies_out):
     # Get the index of the movie that matches the title
     idx = indices[title]
 
     # Get the pairwsie similarity scores of all movies with that movie
     sim_scores = list(enumerate(cosine_sim[idx]))
-
     # Sort the movies based on the similarity scores
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
 
@@ -99,15 +105,15 @@ class Recommender():
         #sort
         q_movies = q_movies.sort_values('score', ascending=False)
         #take 10 best
-        print(q_movies)
         recommendations=q_movies[['title', 'vote_count', 'vote_average', 'score']].head(nb_movies_out)
         return recommendations
     
-    def recommendation_keywords(self, nb_movies_out):  
+    def recommendation_keywords(self, title, nb_movies_out):  
         # Merge keywords and credits into your main metadata dataframe
         movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
         movie_credits.drop(['title'], axis=1, inplace=True)
         metadata = self.metadata.merge(movie_credits, on='id')
+        
         #conversion into dicts
         metadata=clean_lists(metadata)
         
@@ -130,16 +136,86 @@ class Recommender():
         count_matrix = count.fit_transform(metadata['soup'])
         cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
         
+        #print(metadata[metadata['title']==title]['soup'])
+        
         # Reset index of your main DataFrame and construct reverse mapping as before
         metadata = metadata.reset_index()
         indices = pd.Series(metadata.index, index=metadata['title'])
         
-        recommendation=get_recommendations(metadata, indices, 'The Dark Knight Rises', cosine_sim2, nb_movies_out)
+        recommendation=get_recommendations_from_movie(metadata, indices, title, cosine_sim2, nb_movies_out)
         recommendation=recommendation.reset_index().to_dict(orient='index')
+        
         return recommendation
     
-    def recommandations_from_profile(self, words_dict, nb_movies_out):
-        word
+    def recommendation_from_profile(self, words_dict, nb_movies_out):
+        
+        #create df for making soup from word_dict
+        #keydf=pd.DataFrame.from_records(words_dict)
+
+        #keydf['soup'] = keydf.apply(create_soup, axis=1)
+        keywords=words_dict[0]['keywords']
+        casts=words_dict[0]['cast']
+        directors=words_dict[0]['director']
+        genres=words_dict[0]['genres']
+        
+        
+         # Merge keywords and credits into your main metadata dataframe
+        movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
+        movie_credits.drop(['title'], axis=1, inplace=True)
+        metadata = self.metadata.merge(movie_credits, on='id')
+        
+        #print(metadata[metadata['title']=='Top Gun']['genres'])
+
+        
+        
+        features = ['cast', 'crew', 'keywords', 'genres','production_companies','spoken_languages']
+        for feature in features:
+            metadata[feature]=metadata[feature].apply(lambda x: literal_eval(x))
+            
+        metadata['director'] = metadata['crew'].apply(get_director)
+        
+        features = ['cast', 'keywords', 'genres']
+        for feature in features:
+            metadata[feature] = metadata[feature].apply(get_list)
+            
+        features = ['cast', 'keywords', 'director', 'genres']
+        for feature in features:
+            metadata[feature] = metadata[feature].apply(clean_data)
+            
+        
+        #conversion into dicts
+        metadata=clean_lists(metadata)
+        
+        #make fake movie from keywords
+        fake_movie={'title': 'fake_movie', 'keywords': keywords, 'cast': casts, 'director': directors, 'genres': genres }
+        
+        fake_movie_row=pd.DataFrame([fake_movie])
+        metadata=metadata.append(fake_movie_row, ignore_index=True).fillna("")
+        
+        
+        
+        #metadata=pd.concat([metadata, fake_movie_row], ignore_index=True)
+        
+        metadata['soup'] = metadata.apply(create_soup, axis=1)
+        res=metadata[metadata['title']=='fake_movie']['soup']
+        #begin the county stuff
+        count = CountVectorizer(stop_words='english')
+        count_matrix = count.fit_transform(metadata['soup'])
+        cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
+        
+        
+        
+       
+        # Reset index of your main DataFrame and construct reverse mapping as before
+        metadata = metadata.reset_index()
+        indices = pd.Series(metadata.index, index=metadata['title'])
+        
+        recommendation=get_recommendations_from_movie(metadata, indices, 'fake_movie', cosine_sim2, nb_movies_out)
+        recommendation=recommendation.reset_index().to_dict(orient='index')
+        
+        return recommendation, res
+        
+        
     
     
 
