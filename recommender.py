@@ -11,7 +11,6 @@ from ast import literal_eval
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import json
-from json import JSONEncoder
 
 def clean_lists(metadata):
     #removes empty lists from metadata
@@ -52,11 +51,6 @@ def clean_data(x):
 
 def create_soup(x):
     return ' '.join(x['keywords']) + ' ' + ' '.join(x['cast']) + ' ' + x['director'] + ' ' + ' '.join(x['genres'])
-
-def create_soup2(x):
-    return ' '.join(x['keywords']) + ' '+ x['cast'] + ' '+ x['director']+ ' '.join(x['genres'])
-
-
 
 
 def weighted_rating(x, m, C):
@@ -118,6 +112,8 @@ class Recommender():
         self.movie_credits=pd.read_csv(credits_path, low_memory=False)
         self.m=0
         self.C=0
+        self.flag_cosine_sim_computed=False
+        self.flag_data_prepared=False
     
     def recommendation_naive(self, nb_movies_out):
         movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
@@ -142,7 +138,7 @@ class Recommender():
 
         return recommendations
     
-    def recommendation_keywords(self, title, nb_movies_out):  
+    def recommendation_from_movie(self, title, nb_movies_out,):  
         # Merge keywords and credits into your main metadata dataframe
         movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
         movie_credits.drop(['title'], axis=1, inplace=True)
@@ -151,19 +147,34 @@ class Recommender():
         #conversion into dicts
         metadata=clean_lists(metadata)
         
-        metadata=prepare_df(metadata)
+        if self.flag_data_prepared:
+            #read df from file
+            res=0
+        else:        
+            metadata=prepare_df(metadata)
+            #write metadata to file
+            self.flag_data_prepared=True
         
         metadata['soup'] = metadata.apply(create_soup, axis=1)
-        #begin the county stuff
-        count = CountVectorizer(stop_words='english')
-        count_matrix = count.fit_transform(metadata['soup'])
-        cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
         
-        json_object = json.dumps(cosine_sim2)
- 
-        # Writing to sample.json
-        with open("cosine_sim2.json", "w") as outfile:
-            outfile.write(json_object)
+        self.flag_cosine_sim_computed=False
+        #begin the county stuff
+        if self.flag_cosine_sim_computed:
+            #read matrix from json
+            cosine_sim2=np.fromfile("cosine_sim2.json")
+            print("go")
+            
+        else:           
+            count = CountVectorizer(stop_words='english')
+            count_matrix = count.fit_transform(metadata['soup'])
+            cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
+            
+            json_object = json.dumps(cosine_sim2.tolist())
+     
+            # Writing to sample.json
+            with open("cosine_sim2.json", "w") as outfile:
+                outfile.write(json_object)
+            self.flag_cosine_sim_computed=True
 
         # Reset index of your main DataFrame and construct reverse mapping as before
         metadata = metadata.reset_index()
