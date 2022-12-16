@@ -119,6 +119,11 @@ class Recommender():
         movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
         movie_credits.drop(['title'], axis=1, inplace=True)
         self.metadata = self.metadata.merge(movie_credits, on='id')
+        
+    def get_movie_details(self, title):
+        df_details=prepare_df(self.metadata)
+        return df_details[df_details['title']==title]
+        
     
     def recommendation_naive(self, nb_movies_out):
                 
@@ -145,12 +150,9 @@ class Recommender():
         metadata=clean_lists(self.metadata)
         
         if self.flag_data_prepared:
-            #read df from file
-            #metadata=pd.read_csv("prepared_df.csv", low_memory=False)
             metadata=self.prepared_metadata            
         else:        
             metadata=prepare_df(metadata)
-            #metadata.to_csv("prepared_df.csv")
             self.prepared_metadata=metadata
             self.flag_data_prepared=True
         
@@ -232,3 +234,4 @@ class Recommender():
         
         return recommendation
         
+    
