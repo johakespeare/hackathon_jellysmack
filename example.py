@@ -13,12 +13,9 @@ words_dict=[{'keywords':['knight','tank','war'],'cast':['garyoldman','johhnydepp
 words_dict2=[{'keywords':['disney','laughs','funny'],'cast':['garyoldman','johhnydepp'],'director':['johnlasseter','stevenspielberg'], 'genres':['animation','comedy']}]
 
 #%%
-films=rcm.recommendation_naive(10,filters_to_apply=['director',['stevenspielberg']])
+#films=rcm.recommendation_naive(10)
 #films=rcm.recommendation_from_profile(words_dict, 10)
 
-
-
-#%%
 start = time.time()
 films=rcm.recommendation_from_movie('Top Gun', 5)
 end = time.time()

@@ -1,0 +1,162 @@
+:root {
+    --color-white : #d9d9d9;
+    --color-magenta : #B724A6;
+    --color-purple : #7c28be;
+    --color-violet : #4c28be;
+    --color-dark-blue : #0f172e;
+    --color-dark : #1C1B1F;
+}
+
+html{
+    background-color: var(--color-dark);
+}
+
+body {
+    padding-left : 40px;
+    padding-right : 40px;
+}
+
+h1,h2 {
+    font-family: 'Montserrat';
+    color: white;
+    font-weight: 800;
+    font-size: 22px;
+    font-weight: bold;
+
+}
+
+.navbar {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 28% 7% 7% 11% 24% 20%;
+    grid-gap: 20px;
+}
+
+.navbar h2{
+
+text-align: center;
+
+
+}
+
+.navbar h2:hover{
+    text-decoration: underline;
+}
+
+
+.section-account img {
+
+    display:inline-block;
+    top: 11px;
+    position: relative;
+
+}
+
+
+.section-account h2 {
+
+    display:inline-block;
+    
+    margin-right:10px;
+}
+
+.popular-movies {
+ 
+    overflow-x: scroll;
+    overflow-y: hidden;
+    transition: 0.5s all ease-in-out;
+  white-space: nowrap;
+  }
+  .popular-movies::-webkit-scrollbar {
+    display: none;
+  }
+
+  .popular-movies .image-layout {
+    display: inline-block;
+    padding: 5px;
+    height: 186px;
+    width: 126px;
+    margin-right: 20px;
+    
+     
+   
+   }
+   .popular-movies img{
+   width: 145px;
+    height: 200px;
+    object-fit: cover;
+   }
+
+  .popular-movies .image-layout:hover {
+    
+ 
+
+ 
+  }
+ 
+
+body {font-family: Arial, Helvetica, sans-serif;}
+  
+  /* The Modal (background) */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color:var(--color-white);
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    display:flex;
+  }
+
+  .col1{
+    width:70%;
+    background-image: url(../images/batman.png);
+    background-repeat: no-repeat;
+   }
+   .col2{
+     width:30%;
+   }
+  .modal-content h1{
+    color: #000;
+    margin: auto;
+    padding: 20px;
+  
+    width: 80%;
+  }
+
+  .modal-content h2{
+    color: #000;
+    margin: auto;
+    padding: 30px;
+   
+    width: 80%;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }

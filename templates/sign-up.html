@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html class="background">
+    <head>
+        <meta charset="utf-8">
+        <title>Sign-up Page</title>
+        <link rel="stylesheet" href="../static/css/sign-up.css">
+        <script src="../static/js/sign-up.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    </head>
+
+    
+    <div class="navbar">
+        <img src="../static/images/logo.png"
+     alt="logo jelly">
+
+
+       <div class="section-account">
+    
+        <h2>CONNEXION</h2>
+        <img src="../static/images/account_circle.png" 
+        alt="logo account">
+    </div>
+    </div>
+     
+    </div>
+    <form  method="post">
+    <h1 class="title">CREATE AN ACCOUNT</h1>
+
+
+
+    
+    <div class="sign_up_layout">
+        <div class="textbox_layout">
+            <label class="label">
+                User
+            </label>
+            <input class="textbox_input" name="username"  id="name" placeholder="Choose a username"/>
+        </div>
+        <div class="textbox_layout">
+            <label class="label">
+                Password
+            </label>
+            <input type="password" class="textbox_input" name="password" id="password" placeholder="Choose a password"/>
+        </div>
+        <div class="textbox_layout">
+            <label class="label">
+                Confirm Password
+            </label>
+            <input type="password" class="textbox_input" id="confirm" name="confirm_password" placeholder="Confirm your choice"/>
+        </div>
+        <button onclick="window.location.href = './create_account;" class="button_style">
+            Create an account
+        </button>
+         <a class="new_account_link" href="./create_account">Create an account</a>
+    </div>
+   </form>
+</html>

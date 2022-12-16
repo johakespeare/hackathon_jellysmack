@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Titre de la page</title>
+  <link rel="stylesheet" href="../static/css/home.css">
+  <script src="../static/js/home.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+</head>
+<body>
+
+    <div class="navbar">
+        <img src="../static/images/logo.png"
+     alt="logo jelly">
+
+      <h2>HOME</h2>
+      <h2>MY LIST</h2>
+      <h2>ALL MOVIES</h2>
+
+     <div style="color:'#1C1B1F'">...</div>
+       <div class="section-account">
+
+        <h2>MY ACCOUNT</h2>
+        <img src="../static/images/account_circle.png"
+        alt="logo account">
+    </div>
+    </div>
+
+    </div>
+
+
+
+    <div class="section">
+        <h2>POPULAR</h2>
+        <div class="popular-movies">
+            <div class="image-layout">
+                <img src="https://i2.netflixmovies.com/dibsl9ebc/image/upload/w_600,h_891,c_lfill,g_north/xmih5wj4drsi78krmtaa.jpg">
+            </div>
+
+            <div class="image-layout">
+                <img src="https://pisces.bbystatic.com/image2/BestBuy_US/images/products/3290/3290236_so.jpg">
+            </div>
+
+            <div class="image-layout">
+                <img src=https://sm.ign.com/t/ign_latam/movie/t/the-dark-k/the-dark-knight_36qc.1200.jpg>
+            </div>
+
+            <div class="image-layout">
+                <img src=https://i.etsystatic.com/27083368/r/il/2955df/3121531300/il_1588xN.3121531300_agj9.jpg >
+            </div>
+
+            <div class="image-layout">
+                <img src="https://www.tvguide.com/a/img/catalog/provider/1/2/1-9441893422.jpg" >
+            </div>
+
+            <div class="image-layout">
+                <img src="https://media.movieassets.com/static/images/items/movies/posters/660ff38d36bed9a8f91f53b4e361da25.jpg">
+            </div>
+
+            <div class="image-layout">
+                <img src="https://www.quai10.be/wp-content/uploads/2018/03/godfather.jpg">
+            </div>
+
+            <div class="image-layout">
+                <img src="https://image.tmdb.org/t/p/original/ahCd5YfSgyRXkgUqPl7BwHz5ET2.jpg">
+            </div>
+
+
+            <div class="image-layout">
+                <img src="https://image.jimcdn.com/app/cms/image/transf/dimension=1920x10000:format=jpg/path/s4203c9b02a6fa8f1/image/i5c331b772d4797bd/version/1519895228/forrest-gump.jpg">
+            </div>
+
+
+
+            <div class="image-layout">
+                <img src="https://flxt.tmsimg.com/assets/p15227_p_v13_be.jpg">
+            </div>
+              <div class="image-layout">
+                <img src="https://i2.netflixmovies.com/dibsl9ebc/image/upload/w_600,h_891,c_lfill,g_north/xmih5wj4drsi78krmtaa.jpg">
+            </div>
+
+            <div class="image-layout">
+                <img src="https://pisces.bbystatic.com/image2/BestBuy_US/images/products/3290/3290236_so.jpg">
+            </div>
+
+            <div class="image-layout">
+                <img src=https://sm.ign.com/t/ign_latam/movie/t/the-dark-k/the-dark-knight_36qc.1200.jpg>
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h2>FOR YOU</h2>
+
+        <div class="popular-movies">
+        {%for i in range(a)%}
+
+            <div class="image-layout" style="background-color: cornflowerblue; color:white;">
+                <p>{{film_name[i]}}</p>
+
+            </div>
+             {%endfor%}
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+  <div class="section">
+        <h2>BY DIRECTOR</h2>
+
+        <div class="popular-movies">
+        {%for i in range(c)%}
+
+            <div class="image-layout" style="background-color: magenta;color:white;">
+                <p>{{by_director[i]}}</p>
+
+            </div>
+             {%endfor%}
+        </div>
+
+
+
+    </div>
+
+  <div class="section">
+        <h2>BY CAST</h2>
+
+        <div class="popular-movies">
+        {%for i in range(d)%}
+
+            <div class="image-layout" style="background-color: #2dfd2d; color:white;">
+                <p>{{by_cast[i]}}</p>
+
+            </div>
+             {%endfor%}
+        </div>
+
+
+
+    </div>
+    </body>
+    </html>

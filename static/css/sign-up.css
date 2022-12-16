@@ -1,0 +1,132 @@
+:root {
+    --color-white-text : #e6e6e6;
+    --color-white-textbox : #d9d9d9;
+    --color-magenta : #B724A6;
+    --color-purple : #7c28be;
+    --color-violet : #4c28be;
+    --color-dark-blue : #0f172e;
+}
+
+h1,h2 {
+    font-family: 'Montserrat';
+    color: white;
+    font-weight: 800;
+    font-size: 22px;
+    font-weight: bold;
+
+}
+
+.background{
+    background-color: var(--color-dark-blue); 
+    height : 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
+.sign_up_layout{
+    height: 434px; 
+    width: 366px; 
+    background-color: var(--color-violet); 
+    display: block;
+    margin-left: auto; 
+    margin-right: auto; 
+    margin-top: auto; 
+    margin-bottom: auto; 
+    border-radius: 20px;
+    padding-top: 10px;
+}
+
+.textbox_layout{
+    display: block;
+    margin-left: auto; 
+    margin-right: auto; 
+    margin-top: 15px; 
+    margin-bottom: auto; 
+}
+
+.textbox_input{
+    height: 52px; 
+    width: 286px; 
+    font-weight: 800; 
+    font-size: 19px; 
+    background-color: var(--color-white-textbox); 
+    align-self: center; 
+    margin-left: 10%; 
+    margin-right: auto; 
+    border-radius: 20px;
+    font-family: 'Montserrat';
+    padding-left: 10px;
+}
+
+.button_style{
+    width: 285px; 
+    height: 52px; 
+    background-color: var(--color-magenta); 
+    align-self: center; 
+    margin-top: 25px;
+    margin-left: 10%; 
+    margin-right: auto; 
+    font-family: 'Montserrat';
+    font-weight: 800; 
+    font-size: 21px;
+    color: var(--color-white-text);
+    border-color: var(--color-magenta);
+}
+
+.button_style:hover{
+    background-color: #921c84;
+    border-color: #6d1563;
+}
+
+.label{
+    font-weight: 800; 
+    font-size: 21px; 
+    line-height: 26px; 
+    color: var(--color-white-text); 
+    margin-left: 15px;
+    font-family: 'Montserrat';
+}
+
+.title{
+    font-weight: 800; 
+    font-size: 40px; 
+    line-height: 49px; 
+    color: var(--color-white-text); 
+    font-family: 'Montserrat';
+    margin-top: 50px;
+    margin-left: 33%;
+
+}
+
+
+
+.navbar {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 28% 90%;
+    grid-gap: 750px;
+}
+
+.navbar h2{
+
+text-align: center;
+
+
+}
+
+.section-account img {
+
+    display:inline-block;
+    top: 11px;
+    position: relative;
+
+}
+
+
+.section-account h2 {
+
+    display:inline-block;
+    
+    margin-right:10px;
+}
