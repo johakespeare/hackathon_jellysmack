@@ -10,7 +10,8 @@ import numpy as np
 from ast import literal_eval
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import json
+
+import time
 
 def clean_lists(metadata):
     #removes empty lists from metadata
@@ -50,7 +51,7 @@ def clean_data(x):
             return ''
 
 def create_soup(x):
-    return ' '.join(x['keywords']) + ' ' + ' '.join(x['cast']) + ' ' + x['director'] + ' ' + ' '.join(x['genres'])
+    return ' '.join(x['keywords']) + ' ' + ' '.join(x['cast']) + ' ' + ' '.join(x['director'])+ ' ' + ' '.join(x['genres'])
 
 
 def weighted_rating(x, m, C):
@@ -114,15 +115,15 @@ class Recommender():
         self.C=0
         self.flag_cosine_sim_computed=False
         self.flag_data_prepared=False
-    
-    def recommendation_naive(self, nb_movies_out):
+        # Merge keywords and credits into your main metadata dataframe
         movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
         movie_credits.drop(['title'], axis=1, inplace=True)
-        metadata = self.metadata.merge(movie_credits, on='id')
-        
-        metadata=prepare_df(metadata)
-        
-            
+        self.metadata = self.metadata.merge(movie_credits, on='id')
+    
+    def recommendation_naive(self, nb_movies_out):
+                
+        metadata=prepare_df(self.metadata)
+                    
         C = metadata['vote_average'].mean()
         #filter above m number of votes
         m = metadata['vote_count'].quantile(0.90)    
@@ -136,44 +137,34 @@ class Recommender():
         recommendations=q_movies.head(nb_movies_out)
         recommendations=recommendations.reset_index().to_dict(orient='index')
 
-        return recommendations
+        return recommendations        
     
     def recommendation_from_movie(self, title, nb_movies_out,):  
-        # Merge keywords and credits into your main metadata dataframe
-        movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
-        movie_credits.drop(['title'], axis=1, inplace=True)
-        metadata = self.metadata.merge(movie_credits, on='id')
-        
+                
         #conversion into dicts
-        metadata=clean_lists(metadata)
+        metadata=clean_lists(self.metadata)
         
         if self.flag_data_prepared:
             #read df from file
-            res=0
+            #metadata=pd.read_csv("prepared_df.csv", low_memory=False)
+            metadata=self.prepared_metadata            
         else:        
             metadata=prepare_df(metadata)
-            #write metadata to file
+            #metadata.to_csv("prepared_df.csv")
+            self.prepared_metadata=metadata
             self.flag_data_prepared=True
         
         metadata['soup'] = metadata.apply(create_soup, axis=1)
         
-        self.flag_cosine_sim_computed=False
-        #begin the county stuff
+        #speedy stuff
         if self.flag_cosine_sim_computed:
-            #read matrix from json
-            cosine_sim2=np.fromfile("cosine_sim2.json")
-            print("go")
-            
+
+            cosine_sim2=self.cosine_sim2
         else:           
             count = CountVectorizer(stop_words='english')
             count_matrix = count.fit_transform(metadata['soup'])
             cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
-            
-            json_object = json.dumps(cosine_sim2.tolist())
-     
-            # Writing to sample.json
-            with open("cosine_sim2.json", "w") as outfile:
-                outfile.write(json_object)
+            self.cosine_sim2=cosine_sim2
             self.flag_cosine_sim_computed=True
 
         # Reset index of your main DataFrame and construct reverse mapping as before
@@ -183,11 +174,10 @@ class Recommender():
         recommendation=get_recommendations_from_movie(metadata, indices, title, cosine_sim2, nb_movies_out)
         recommendation=recommendation.reset_index().to_dict(orient='index')
         
-        return recommendation, cosine_sim2
+        return recommendation
     
     def recommendation_from_profile(self, words_dict, nb_movies_out):
         '''
-        
 
         Parameters
         ----------
@@ -196,6 +186,8 @@ class Recommender():
             {keywords: string[], cast: string[], director: string, genres: string[]}
         nb_movies_out : int
             number of recommendations
+        flag_update_profile: boolean
+            False by default, set to True to make new recommandations when profile changes
 
         Returns
         -------
@@ -208,53 +200,35 @@ class Recommender():
         casts=words_dict[0]['cast']
         directors=words_dict[0]['director']
         genres=words_dict[0]['genres']
-        
-        
-        #Merge keywords and credits into your main metadata dataframe
-        movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
-        movie_credits.drop(['title'], axis=1, inplace=True)
-        metadata = self.metadata.merge(movie_credits, on='id')
-                
-        metadata=prepare_df(metadata)
-        
-        
+               
         #conversion into dicts
-        metadata=clean_lists(metadata)
+        metadata=clean_lists(self.metadata)
+        
+        if self.flag_data_prepared:
+            metadata=self.prepared_metadata            
+        else:        
+            metadata=prepare_df(metadata)
+            self.prepared_metadata=metadata
+            self.flag_data_prepared=True
         
         #make fake movie from keywords
         fake_movie={'title': 'fake_movie', 'keywords': keywords, 'cast': casts, 'director': directors, 'genres': genres }
         
         fake_movie_row=pd.DataFrame([fake_movie])
         metadata=metadata.append(fake_movie_row, ignore_index=True).fillna("")
-        
-        
+                
         metadata['soup'] = metadata.apply(create_soup, axis=1)
-        
-        #begin the county stuff
+                
         count = CountVectorizer(stop_words='english')
         count_matrix = count.fit_transform(metadata['soup'])
         cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
-        
-        
+                
         # Reset index of your main DataFrame and construct reverse mapping as before
         metadata = metadata.reset_index()
         indices = pd.Series(metadata.index, index=metadata['title'])
         
         recommendation=get_recommendations_from_movie(metadata, indices, 'fake_movie', cosine_sim2, nb_movies_out)
-        recommendation=recommendation.reset_index().to_dict(orient='index')
+        recommendation=recommendation.reset_index().to_dict(orient='index')        
         
         return recommendation
-        
-        
-    
-    
-
-    
-        
-        
-            
-
-        
-        
-        
         
