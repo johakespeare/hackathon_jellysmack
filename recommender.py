@@ -78,7 +78,7 @@ def prepare_df(metadata):
 
 
 
-def get_recommendations_from_movie(metadata, indices, title, cosine_sim, nb_movies_out):
+def get_recommendations_from_movie(metadata, indices, title, cosine_sim, nb_movies_out, filters_to_apply=None):
     # Get the index of the movie that matches the title
     idx = indices[title]
 
@@ -92,7 +92,7 @@ def get_recommendations_from_movie(metadata, indices, title, cosine_sim, nb_movi
 
     # Get the movie indices
     movie_indices = [i[0] for i in sim_scores]
-
+    
     # Return the top 10 most similar movies
     return metadata.iloc[movie_indices]
 
@@ -119,35 +119,77 @@ class Recommender():
         movie_credits=self.movie_credits.rename(columns={'movie_id':'id'})
         movie_credits.drop(['title'], axis=1, inplace=True)
         self.metadata = self.metadata.merge(movie_credits, on='id')
+        self.flag_weighted_rating=False
         
     def get_movie_details(self, title):
         df_details=prepare_df(self.metadata)
         return df_details[df_details['title']==title]
         
     
-    def recommendation_naive(self, nb_movies_out):
-                
-        metadata=prepare_df(self.metadata)
-                    
-        C = metadata['vote_average'].mean()
-        #filter above m number of votes
-        m = metadata['vote_count'].quantile(0.90)    
-        q_movies = metadata.copy().loc[metadata['vote_count'] >= m]
-        #apply weigthed score
-        q_movies['score'] = q_movies.apply(weighted_rating, args=(m,C), axis=1)
-        #sort
-        q_movies = q_movies.sort_values('score', ascending=False)
-        #take 10 best
-        #recommendations=q_movies[['title', 'vote_count', 'vote_average', 'score']].head(nb_movies_out)
-        recommendations=q_movies.head(nb_movies_out)
+    def recommendation_naive(self, nb_movies_out, filters_to_apply=None):
+        '''
+        
+        Parameters
+        ----------
+        nb_movies_out : TYPE
+            DESCRIPTION.
+        filters_to_apply : List, optional
+            DESCRIPTION. Filter by genre, director, cast or keywords [key_string, value_string]
+
+        Returns
+        -------
+        recommendations : TYPE
+            DESCRIPTION.
+
+        '''
+        
+        if self.flag_data_prepared:
+            metadata=self.prepared_metadata            
+        else:        
+            metadata=prepare_df(self.metadata)
+            self.prepared_metadata=metadata
+            self.flag_data_prepared=True
+        
+        if filters_to_apply:
+            key=filters_to_apply[0]
+            value=filters_to_apply[1]
+            if key=='genres':
+                mask = metadata.genres.apply(lambda x: any(item for item in value if item in x))
+            elif key=='director':
+                mask = metadata.director.apply(lambda x: any(item for item in value if item in x))
+            elif key=='cast':
+                mask = metadata.cast.apply(lambda x: any(item for item in value if item in x))
+            elif key=='keywords':
+                mask = metadata.keywords.apply(lambda x: any(item for item in value if item in x))
+            metadata=metadata[mask]
+
+        if not self.flag_weighted_rating:           
+            C = metadata['vote_average'].mean()
+            #filter above m number of votes
+            m = metadata['vote_count'].quantile(0.90)    
+            q_movies = metadata.copy().loc[metadata['vote_count'] >= m]
+            #apply weigthed score
+            q_movies['score'] = q_movies.apply(weighted_rating, args=(m,C), axis=1)
+            #sort
+            q_movies = q_movies.sort_values('score', ascending=False)
+            self.q_movies=q_movies
+            self.flag_weighted_rating=True;
+            #take 10 best
+        recommendations=self.q_movies.head(nb_movies_out)
         recommendations=recommendations.reset_index().to_dict(orient='index')
 
         return recommendations        
     
-    def recommendation_from_movie(self, title, nb_movies_out,):  
+    def recommendation_from_movie(self, title, nb_movies_out, filters_to_apply=None):  
                 
         #conversion into dicts
         metadata=clean_lists(self.metadata)
+        
+        if filters_to_apply:
+            key=filters_to_apply[0]
+            value=filters_to_apply[1]
+            mask = metadata.genres.apply(lambda x: any(item for item in value if item in x))
+            metadata=metadata[mask]
         
         if self.flag_data_prepared:
             metadata=self.prepared_metadata            
@@ -168,6 +210,11 @@ class Recommender():
             cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
             self.cosine_sim2=cosine_sim2
             self.flag_cosine_sim_computed=True
+            
+        if filters_to_apply:
+            key=filters_to_apply[0]
+            value=filters_to_apply[1]
+            metadata=metadata[value in metadata[key]]
 
         # Reset index of your main DataFrame and construct reverse mapping as before
         metadata = metadata.reset_index()
@@ -178,7 +225,7 @@ class Recommender():
         
         return recommendation
     
-    def recommendation_from_profile(self, words_dict, nb_movies_out):
+    def recommendation_from_profile(self, words_dict, nb_movies_out, filters_to_apply=None):
         '''
 
         Parameters
@@ -206,6 +253,11 @@ class Recommender():
         #conversion into dicts
         metadata=clean_lists(self.metadata)
         
+        if filters_to_apply:
+            key=filters_to_apply[0]
+            value=filters_to_apply[1]
+            metadata=metadata[value in metadata[key]]
+        
         if self.flag_data_prepared:
             metadata=self.prepared_metadata            
         else:        
@@ -224,6 +276,11 @@ class Recommender():
         count = CountVectorizer(stop_words='english')
         count_matrix = count.fit_transform(metadata['soup'])
         cosine_sim2 = cosine_similarity(count_matrix, count_matrix)
+        
+        if filters_to_apply:
+            key=filters_to_apply[0]
+            value=filters_to_apply[1]
+            metadata=metadata[metadata[key]==value]
                 
         # Reset index of your main DataFrame and construct reverse mapping as before
         metadata = metadata.reset_index()
